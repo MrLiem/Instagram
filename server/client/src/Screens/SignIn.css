@@ -1,0 +1,22 @@
+.mycard {
+  margin-top: 30px;
+}
+.auth-card {
+  padding: 20px;
+  text-align: center;
+  max-width: 400px;
+  margin: 10px auto;
+}
+
+.input-field input[type="text"]:focus {
+  border-bottom: 1px solid rgb(121, 32, 223) !important;
+  box-shadow: 0 1px 0 0 rgb(121, 32, 223) !important;
+}
+
+.signin-button {
+  margin-top: 30px;
+}
+.signin-title,
+.signin-prompt {
+  font-family: "Grand Hotel", cursive;
+}

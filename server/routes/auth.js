@@ -4,15 +4,12 @@ const mongoose = require("mongoose");
 const User = mongoose.model("User");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../keys");
-const requireLogin= require('../middleware/requireLogin')
+const { JWT_SECRET } = require("../config/keys");
+const requireLogin = require("../middleware/requireLogin");
 
-router.get("/protected",requireLogin, (req, res) => {
-  res.send("Hello");
-});
-
+//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
 router.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password,picture } = req.body;
   if (!email || !password || !name) {
     return res.status(422).json({ error: "please add all the fields" });
   }
@@ -25,7 +22,7 @@ router.post("/signup", (req, res) => {
       bcryptjs
         .hash(password, 12)
         .then((hashedPassword) => {
-          const user = new User({ email, password: hashedPassword, name });
+          const user = new User({ email, password: hashedPassword, name,picture });
           user
             .save()
             .then((user) => {
@@ -45,24 +42,24 @@ router.post("/signup", (req, res) => {
 });
 
 router.post("/signin", (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     return res.status(422).json({ message: "Please add all the fields!!!" });
   }
   User.findOne({ email })
     .then((savedUser) => {
-      if (!savedUser) {
-        return res.status(422).json({ message: "Invalid email!!!" });
+      if (savedUser === null) {
+        return res.status(422).json({ error: "Invalid email!!!" });
       }
       bcryptjs
         .compare(password, savedUser.password)
         .then((doMatch) => {
           if (doMatch) {
-             //return res.json({ message: "Signin Successfully!!!" });
-            const token = jwt.sign({_id:savedUser._id}, JWT_SECRET);
-            return res.json({token});
+            const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
+            const { _id, name, email,followers,followings,picture } = savedUser;
+            return res.json({ token, user: { _id, name, email,followers,followings,picture } });
           } else {
-            return res.status(422).json({ message: "Invalid password!!!" });
+            return res.status(422).json({ error: "Invalid password!!!" });
           }
         })
         .catch((err) => {
